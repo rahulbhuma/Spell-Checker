@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spell Checker</title>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: "Spell Check.jpg"
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spell Checker</h1>
+        <input type="text" id="input-word" placeholder="Type a word" />
+        <!-- Button to trigger the checkSpelling function -->
+        <button onclick="checkSpelling()">Check Spelling</button>
+        <h3>Suggestions:</h3>
+        <ul id="suggestions-list"></ul>
+    </div>
+    <script>
+        async function checkSpelling() {
+            const word = document.getElementById("input-word").value.trim();
+            if (!word) {
+                alert("Please enter a word!");
+                return;
+            }
+
+            try {
+                const response = await fetch("/suggest", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ word })
+                });
+
+                const data = await response.json();
+                const suggestionsList = document.getElementById("suggestions-list");
+                suggestionsList.innerHTML = ""; // Clear previous suggestions
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Add suggestions to the list
+                data.suggestions.forEach(suggestion => {
+                    const li = document.createElement("li");
+                    li.textContent = suggestion;
+                    suggestionsList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("Error during fetch:", error);
+                alert("An error occurred while checking the spelling.");
+            }
+        }
+    </script>
+</body>
+</html>
